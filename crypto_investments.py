@@ -76,6 +76,7 @@ market_data_df.describe()
 market_data_df.hvplot.line(
     width=800,
     height=400,
+    title="Crypto Market Data",
     rot=90
 )
 
@@ -118,15 +119,21 @@ market_data_scaled_df = pd.DataFrame(
 # In[ ]:
 
 
-# Checkpoint: Interim check of the dataframe and resultant statistics after standard scaling algorithm (i.e. mean ~ 0, std ~ `)
+# Checkpoint: Interim check of the dataframe
 display(market_data_scaled_df.head())
+
+
+# In[ ]:
+
+
+# Checkpoint: Confirm statistics after standard scaling algorithm should have 0 mean and 1 standard deviation
 market_data_scaled_df.describe()
 
 
 # In[ ]:
 
 
-# Copy the crypto names from the original data
+# Copy the crypto coin_id index from the original data into the scaled dataframe (as a new column entry)
 market_data_scaled_df["coin_id"] = market_data_df.index
 
 
@@ -140,7 +147,7 @@ display(market_data_scaled_df.head())
 # In[ ]:
 
 
-# Set the coinid column as index
+# Set the new coinid column as index
 market_data_scaled_df = market_data_scaled_df.set_index("coin_id")
 
 # Display sample data
@@ -182,7 +189,7 @@ display(inertia)  # checkpoint
 # Create a for loop to compute the inertia with each possible value of k
 # Inside the loop:
 # 1. Create a KMeans model using the loop counter for the n_clusters
-# 2. Fit the model to the data using `df_market_data_scaled`
+# 2. Fit the model to the data using `market_data_scaled_df`
 # 3. Append the model.inertia_ to the inertia list
 for i in k:
     kmeans_model = KMeans(n_clusters=i, random_state=0)
@@ -363,7 +370,7 @@ display(pca_model)  # Checkpoint
 # In[ ]:
 
 
-# Check DataFrame data types (confirm all data are numeric)
+# Check DataFrame data types (to confirm all data are numeric before applying the fit_transform operation below)
 market_data_scaled_df.dtypes
 
 
@@ -390,7 +397,7 @@ display(pca_model.explained_variance_ratio_)
 # 
 # **Question:** What is the total explained variance of the three principal components?
 # 
-# **Answer:** (See print result in next cell)
+# **Answer:** (Since the variance can change slightly from each run, dynamically extracted the values....see print result in next cell)
 
 # In[ ]:
 
@@ -423,7 +430,7 @@ display(market_data_scaled_pca_df.head())  # Checkpoint
 # In[ ]:
 
 
-# Copy the crypto names from the original data
+# Copy the crypto coin_id index from the scaled data into the the new pca dataframe (as a new column entry)
 market_data_scaled_pca_df["coin_id"] = market_data_scaled_df.index
 
 
@@ -480,7 +487,7 @@ inertia = []
 # Create a for loop to compute the inertia with each possible value of k
 # Inside the loop:
 # 1. Create a KMeans model using the loop counter for the n_clusters
-# 2. Fit the model to the data using `df_market_data_pca`
+# 2. Fit the model to the data using `market_data_scaled_pca_df`
 # 3. Append the model.inertia_ to the inertia list
 for i in k:
     kmeans_model = KMeans(n_clusters=i, random_state=0)
@@ -499,7 +506,6 @@ display(inertia)
 # In[ ]:
 
 
-# Create a dictionary with the data to plot the Elbow curve
 # Create a dictionary with the data to plot the Elbow curve
 elbow_pca_dict = {
     "k": k,
@@ -681,7 +687,7 @@ market_data_scaled_predict_df_plot + market_data_scaled_pca_predict_df_plot
 # 
 #   * **Question:** After visually analyzing the cluster analysis results, what is the impact of using fewer features to cluster the data using K-Means?
 # 
-#   * **Answer:**= Using the PCA method to cluster the data did a fairly nice job of "clustering" same data together.  Although visually, it looks very different - but this is expected since the resultant PCA data is "transformed" from the original data set, the combined data groups in the cluster are similar.  You can notice that in both methods, the majority of the points are clustered into 2 groups (cluster 0 and 3 in the original data, and cluster 0 and 2 in the pca cluster data).  To prove that the clusters for the data rows in the dataframe are correlated, see the below aggregation of the cluster segments in the NEXT CELL BELOW...  The results show the following: Orig cluster mapping 0 --> PCA cluster 2; Orig cluster 1 --> PCA cluster 1; Orig cluster 2 --> PCA cluster 3; Orig cluster 3 --> PCA cluster 0  
+#   * **Answer:**= Using the PCA method to cluster the data did a nice job of "clustering" same data as the original data.  Although visually, it the cluster plots look very different, this is expected since the resultant PCA data is "transformed" from the original data set. However, the combined data groups in the clusters are similar.  You can notice that in both methods, the majority of the points are clustered into 2 groups (cluster 0 and 2 from the original data, and cluster 0 and 1 from the pca cluster data - although, note, can change on different runs - highlighting a single instance for reference).  To prove that the clusters for the data rows in the dataframe are correlated, see the below aggregation of the cluster segments in the NEXT CELL BELOW...  The results show the following: Orig cluster mapping 0 --> PCA cluster 1; Orig cluster 1 --> PCA cluster 3; Orig cluster 2 --> PCA cluster 0; Orig cluster 3 --> PCA cluster 2  
 
 # In[ ]:
 
@@ -695,11 +701,11 @@ for i in range(4):
     print("\t\tOriginal: " + str(predict_cluster_segments_df.loc[predict_cluster_segments_df['Orig Data Cluster Segment'] == i].shape[0]))
     print("\t\tPCA:      " + str(predict_cluster_segments_df.loc[predict_cluster_segments_df['PCA Cluster Segment'] == i].shape[0]))
 
-# Notes
-# Orig cluster 0 --> PCA cluster 2
-# Orig cluster 1 --> PCA cluster 1
-# Orig cluster 2 --> PCA cluster 3
-# Orig cluster 3 --> PCA cluster 0
+# Notes  (the following can change on different runs - highlighting a single instance for reference)
+# Orig cluster 0 --> PCA cluster 1
+# Orig cluster 1 --> PCA cluster 3
+# Orig cluster 2 --> PCA cluster 0
+# Orig cluster 3 --> PCA cluster 2
 
 print()
 print("Combined ORIG + PCA Cluster Segments:")
